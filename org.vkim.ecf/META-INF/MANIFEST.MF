@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: VKontakte IM ECF Bridge
+Bundle-SymbolicName: org.vkim.ecf
+Bundle-Version: 0.0.1.qualifier
+Bundle-Activator: org.vkim.ecf.Activator
+Bundle-Vendor: Kirill Zotkin
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.ecf;bundle-version="3.1.0",
+ org.eclipse.ecf.provider.xmpp;bundle-version="3.1.0",
+ org.eclipse.ecf.presence;bundle-version="2.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
+Export-Package: org.vkim.ecf
