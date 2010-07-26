@@ -9,8 +9,11 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.viewers.ILabelProvider;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
@@ -19,11 +22,12 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbenchActionConstants;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.part.ViewPart;
-import org.vkim.Account;
-import org.vkim.ConnectivityManager;
+import org.vkim.controller.Account;
+import org.vkim.controller.ConnectivityManager;
 
 public class View extends ViewPart {
 	public static final String ID = "org.vkim.ui.view";
@@ -31,6 +35,8 @@ public class View extends ViewPart {
 	private TreeViewer viewer;
 
 	IAction newAction;
+
+	IAction deleteAction;
 
 	/**
 	 * The content provider class is responsible for providing objects to the
@@ -113,12 +119,25 @@ public class View extends ViewPart {
 	}
 
 	private void makeActions() {
-		newAction = ActionFactory.NEW_WIZARD_DROP_DOWN.create(getSite()
-				.getWorkbenchWindow());
+		IWorkbenchWindow window = getSite().getWorkbenchWindow();
+
+		newAction = ActionFactory.NEW_WIZARD_DROP_DOWN.create(window);
+
+		// TODO extract to my action factory
+		deleteAction = new DeleteAction((ISelectionProvider) viewer);
+		deleteAction.setEnabled(false);
+		ISharedImages sharedImages = window.getWorkbench().getSharedImages();
+		deleteAction.setImageDescriptor(sharedImages
+				.getImageDescriptor(ISharedImages.IMG_TOOL_DELETE));
+		deleteAction.setDisabledImageDescriptor(sharedImages
+				.getImageDescriptor(ISharedImages.IMG_TOOL_DELETE_DISABLED));
+
 	}
 
 	private void fillContextMenu(IMenuManager manager) {
 		manager.add(newAction);
+		manager.add(new Separator());
+		manager.add(deleteAction);
 		manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 
 	}
@@ -129,10 +148,16 @@ public class View extends ViewPart {
 	 */
 	public void createPartControl(Composite parent) {
 		viewer = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
-
 		viewer.setContentProvider(new ViewContentProvider());
 		viewer.setLabelProvider(new ViewLabelProvider());
 		viewer.setInput(getConnectivityManager().getAccounts());
+
+		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
+			public void selectionChanged(SelectionChangedEvent event) {
+				getSite().setSelectionProvider(viewer);
+			}
+		});
+
 		makeActions();
 		hookContextMenu();
 	}
@@ -150,8 +175,8 @@ public class View extends ViewPart {
 
 	public boolean addContainer(IContainer container, XMPPID targetID,
 			IConnectContext connectContext) {
-		Account account = getConnectivityManager().createAccount(container,
-				targetID, connectContext);
+		Account account = getConnectivityManager().createAccount(this,
+				container, targetID, connectContext);
 		if (account == null)
 			return false;
 
@@ -159,4 +184,15 @@ public class View extends ViewPart {
 		return true;
 
 	}
+
+	public void removeEntryFromTreeViewer(Account entry) {
+		viewer.remove(entry);
+
+	}
+
+	public void addEntryToTreeViewer(Account entry) {
+		viewer.add(viewer.getInput(), entry);
+
+	}
+
 }

@@ -41,6 +41,9 @@
          <newWizardShortcut
                id="org.vkim.ui.existingAccount">
          </newWizardShortcut>
+         <viewShortcut
+               id="org.vkim.ui.view">
+         </viewShortcut>
       </perspectiveExtension>
    </extension>
    <extension
@@ -52,6 +55,11 @@
             <command
                   commandId="org.eclipse.ui.newWizard"
                   label="New"
+                  style="push">
+            </command>
+            <command
+                  commandId="org.eclipse.ui.views.showView"
+                  label="Show View"
                   style="push">
             </command>
             <separator
@@ -73,5 +81,18 @@
             name="Existing Account">
       </wizard>
    </extension>
-
+   <extension
+         id="product"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="org.vkdt.vkim.application"
+            description="Internal zero-iteration version."
+            name="VKontakteIM">
+         <property
+               name="appName"
+               value="VKontakteIM">
+         </property>
+      </product>
+   </extension>
+   
 </plugin>

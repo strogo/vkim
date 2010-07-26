@@ -1,4 +1,4 @@
-package org.vkim;
+package org.vkim.controller;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.ecf.core.IContainer;
@@ -7,8 +7,13 @@ import org.eclipse.ecf.presence.IPresenceContainerAdapter;
 import org.eclipse.ecf.presence.roster.IRoster;
 import org.eclipse.ecf.presence.roster.IRosterManager;
 import org.eclipse.ecf.provider.xmpp.identity.XMPPID;
+import org.eclipse.swt.widgets.Display;
+import org.vkim.Activator;
+import org.vkim.ui.View;
 
 public class Account {
+
+	private View view;
 
 	private XMPPID targetID;
 
@@ -18,11 +23,38 @@ public class Account {
 
 	protected IPresenceContainerAdapter adapter;
 
-	public Account(IContainer container, IPresenceContainerAdapter adapter) {
+	IAccountListener updateListener = new IAccountListener() {
+
+		@Override
+		public void handleAccountEntryRemove(final Account entry) {
+			Display.getDefault().asyncExec(new Runnable() {
+				public void run() {
+					Account.this.view.removeEntryFromTreeViewer(entry);
+				}
+			});
+
+		}
+
+		@Override
+		public void handleAccountEntryAdd(final Account entry) {
+			Display.getDefault().asyncExec(new Runnable() {
+				public void run() {
+					Account.this.view.addEntryToTreeViewer(entry);
+				}
+			});
+
+		}
+	};
+
+	public Account(View view, IContainer container,
+			IPresenceContainerAdapter adapter) {
+		this.view = view;
 		Assert.isNotNull(container);
 		Assert.isNotNull(adapter);
 		this.container = container;
 		this.adapter = adapter;
+		Activator.getDefault().getConnectivityManager()
+				.addAccountListener(updateListener);
 	}
 
 	public IContainer getContainer() {
@@ -55,6 +87,10 @@ public class Account {
 
 	public IConnectContext getConnectContext() {
 		return connectContext;
+	}
+
+	public View getView() {
+		return view;
 	}
 
 }
