@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: VKontakteIM
+Bundle-SymbolicName: org.vkdt.vkim;singleton:=true
+Bundle-Version: 0.0.1.zeroiteration
+Bundle-Activator: org.vkim.Activator
+Bundle-Vendor: VK Developers Team, java branch
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.ecf;bundle-version="3.1.0",
+ org.eclipse.ecf.provider.xmpp;bundle-version="3.1.0",
+ org.eclipse.ecf.presence;bundle-version="2.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
