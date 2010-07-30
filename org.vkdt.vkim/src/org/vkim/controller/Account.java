@@ -2,28 +2,39 @@ package org.vkim.controller;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.ecf.core.IContainer;
+import org.eclipse.ecf.core.identity.ID;
 import org.eclipse.ecf.core.security.IConnectContext;
 import org.eclipse.ecf.presence.IPresenceContainerAdapter;
 import org.eclipse.ecf.presence.roster.IRoster;
+import org.eclipse.ecf.presence.roster.IRosterEntry;
+import org.eclipse.ecf.presence.roster.IRosterItem;
+import org.eclipse.ecf.presence.roster.IRosterListener;
 import org.eclipse.ecf.presence.roster.IRosterManager;
-import org.eclipse.ecf.provider.xmpp.identity.XMPPID;
 import org.eclipse.swt.widgets.Display;
 import org.vkim.Activator;
+import org.vkim.actions.AsynchContainerConnectAction;
 import org.vkim.ui.View;
 
 public class Account {
 
 	private View view;
 
-	private XMPPID targetID;
-
-	private IConnectContext connectContext;
+	private ID targetID;
 
 	protected IContainer container;
 
 	protected IPresenceContainerAdapter adapter;
 
-	IAccountListener updateListener = new IAccountListener() {
+	IAccountListener updateAccountListener = new IAccountListener() {
+
+		@Override
+		public void handleAccountUpdate(final Account changedValue) {
+			Display.getDefault().asyncExec(new Runnable() {
+				public void run() {
+					Account.this.view.refreshTreeViewer(changedValue, true);
+				}
+			});
+		}
 
 		@Override
 		public void handleAccountEntryRemove(final Account entry) {
@@ -42,7 +53,38 @@ public class Account {
 					Account.this.view.addEntryToTreeViewer(entry);
 				}
 			});
+		}
+	};
 
+	IRosterListener updateRosterListener = new IRosterListener() {
+
+		@Override
+		public void handleRosterUpdate(final IRoster roster,
+				final IRosterItem changedValue) {
+			Display.getDefault().asyncExec(new Runnable() {
+				public void run() {
+					Account.this.view.refreshTreeViewer(changedValue, true);
+				}
+			});
+		}
+
+		@Override
+		public void handleRosterEntryRemove(final IRosterEntry entry) {
+			Display.getDefault().asyncExec(new Runnable() {
+				public void run() {
+					Account.this.view.removeEntryFromTreeViewer(entry);
+				}
+			});
+
+		}
+
+		@Override
+		public void handleRosterEntryAdd(final IRosterEntry entry) {
+			Display.getDefault().asyncExec(new Runnable() {
+				public void run() {
+					Account.this.view.addEntryToTreeViewer(entry);
+				}
+			});
 		}
 	};
 
@@ -53,12 +95,17 @@ public class Account {
 		Assert.isNotNull(adapter);
 		this.container = container;
 		this.adapter = adapter;
-		Activator.getDefault().getConnectivityManager()
-				.addAccountListener(updateListener);
+		getConnectivityManager().addAccountListener(updateAccountListener);
+		getRosterManager().addRosterListener(updateRosterListener);
 	}
 
 	public IContainer getContainer() {
 		return container;
+	}
+
+	private ConnectivityManager getConnectivityManager() {
+		return Activator.getDefault().getConnectivityManager();
+
 	}
 
 	public IPresenceContainerAdapter getPresenceContainerAdapter() {
@@ -73,24 +120,31 @@ public class Account {
 		return getRosterManager().getRoster();
 	}
 
-	public void setTargetID(XMPPID targetID) {
+	public void setTargetID(ID targetID) {
 		this.targetID = targetID;
 	}
 
-	public XMPPID getTargetID() {
+	public ID getTargetID() {
 		return targetID;
-	}
-
-	public void setConnectContext(IConnectContext connectContext) {
-		this.connectContext = connectContext;
-	}
-
-	public IConnectContext getConnectContext() {
-		return connectContext;
 	}
 
 	public View getView() {
 		return view;
+	}
+
+	public void connect(IConnectContext connectContext) {
+		new AsynchContainerConnectAction(container, targetID, connectContext,
+				null /* exception handler */, null).run();
+
+	}
+
+	public void dispose() {
+		getConnectivityManager().removeAccountListener(updateAccountListener);
+		getRosterManager().removeRosterListener(updateRosterListener);
+	}
+
+	public Object getParent() {
+		return getConnectivityManager();
 	}
 
 }

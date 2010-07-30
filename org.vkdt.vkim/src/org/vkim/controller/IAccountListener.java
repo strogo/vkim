@@ -2,8 +2,10 @@ package org.vkim.controller;
 
 public interface IAccountListener {
 
-	public void handleAccountEntryAdd(Account entry);
+	public void handleAccountUpdate(final Account changedValue);
 
-	public void handleAccountEntryRemove(Account entry);
+	public void handleAccountEntryRemove(final Account entry);
+
+	public void handleAccountEntryAdd(final Account entry);
 
 }

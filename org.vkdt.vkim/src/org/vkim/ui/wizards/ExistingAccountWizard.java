@@ -4,11 +4,11 @@ import org.eclipse.ecf.core.ContainerCreateException;
 import org.eclipse.ecf.core.ContainerFactory;
 import org.eclipse.ecf.core.IContainer;
 import org.eclipse.ecf.core.IContainerManager;
+import org.eclipse.ecf.core.identity.ID;
 import org.eclipse.ecf.core.identity.IDCreateException;
 import org.eclipse.ecf.core.identity.IDFactory;
 import org.eclipse.ecf.core.security.ConnectContextFactory;
 import org.eclipse.ecf.core.security.IConnectContext;
-import org.eclipse.ecf.provider.xmpp.identity.XMPPID;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.osgi.util.NLS;
@@ -16,6 +16,7 @@ import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PartInitException;
 import org.vkim.Activator;
+import org.vkim.controller.Account;
 import org.vkim.ui.View;
 
 public class ExistingAccountWizard extends Wizard implements INewWizard {
@@ -26,7 +27,7 @@ public class ExistingAccountWizard extends Wizard implements INewWizard {
 
 	private IContainer container;
 
-	private XMPPID targetID;
+	private ID targetID;
 
 	private IConnectContext connectContext;
 
@@ -83,7 +84,7 @@ public class ExistingAccountWizard extends Wizard implements INewWizard {
 				.createPasswordConnectContext(password);
 
 		try {
-			targetID = (XMPPID) IDFactory.getDefault().createID(
+			targetID = IDFactory.getDefault().createID(
 					container.getConnectNamespace(), connectID);
 		} catch (final IDCreateException e) {
 			page.updateStatus(NLS.bind("Could not create ID with {0}", //$NON-NLS-1$
@@ -91,13 +92,16 @@ public class ExistingAccountWizard extends Wizard implements INewWizard {
 			return false;
 		}
 
+		Account account = null;
 		try {
 			final View view = (View) workbench.getActiveWorkbenchWindow()
 					.getActivePage().showView(View.ID);
-			view.addContainer(container, targetID, connectContext);
+			account = view.addContainer(container, targetID);
 		} catch (PartInitException e) {
 			e.printStackTrace();
 		}
+
+		account.connect(connectContext);
 
 		return true;
 	}

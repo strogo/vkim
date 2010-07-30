@@ -1,108 +1,44 @@
 package org.vkim.ui;
 
 import org.eclipse.ecf.core.IContainer;
-import org.eclipse.ecf.core.security.IConnectContext;
-import org.eclipse.ecf.provider.xmpp.identity.XMPPID;
+import org.eclipse.ecf.core.identity.ID;
+import org.eclipse.ecf.presence.roster.IRoster;
+import org.eclipse.ecf.presence.roster.IRosterEntry;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
-import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
-import org.eclipse.jface.viewers.ITreeContentProvider;
-import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TreeViewer;
-import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.part.ViewPart;
+import org.vkim.actions.DeleteAction;
 import org.vkim.controller.Account;
 import org.vkim.controller.ConnectivityManager;
+import org.vkim.controller.PresentationModel;
 
 public class View extends ViewPart {
+
 	public static final String ID = "org.vkim.ui.view";
 
 	private TreeViewer viewer;
 
+	protected static final int DEFAULT_EXPAND_LEVEL = 3;
+
 	IAction newAction;
 
 	IAction deleteAction;
-
-	/**
-	 * The content provider class is responsible for providing objects to the
-	 * view. It can wrap existing objects in adapters or simply return objects
-	 * as-is. These objects may be sensitive to the current input of the view,
-	 * or ignore it and always show the same content (like Task List, for
-	 * example).
-	 */
-	class ViewContentProvider implements ITreeContentProvider {
-		public void inputChanged(Viewer v, Object oldInput, Object newInput) {
-		}
-
-		public void dispose() {
-		}
-
-		public Object[] getElements(Object parent) {
-			if (parent instanceof ConnectivityManager) {
-				return ((ConnectivityManager) parent).getAccounts().toArray();
-			}
-
-			if (parent instanceof Object[]) {
-				return (Object[]) parent;
-			}
-
-			return new Object[0];
-		}
-
-		@Override
-		public Object[] getChildren(Object parentElement) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public Object getParent(Object element) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public boolean hasChildren(Object element) {
-			// TODO Auto-generated method stub
-			return false;
-		}
-	}
-
-	class ViewLabelProvider extends LabelProvider implements ILabelProvider {
-
-		@Override
-		public String getText(Object element) {
-
-			if (element instanceof Account) {
-				Account account = (Account) element;
-				if (account.getRoster().getUser() != null)
-					return account.getRoster().getUser().getName();
-				return account.getTargetID().getUsername();
-			}
-
-			return super.getText(element);
-		}
-
-		public Image getImage(Object obj) {
-			return PlatformUI.getWorkbench().getSharedImages()
-					.getImage(ISharedImages.IMG_OBJ_ELEMENT);
-		}
-	}
 
 	private void hookContextMenu() {
 		MenuManager menuMgr = new MenuManager();
@@ -148,8 +84,9 @@ public class View extends ViewPart {
 	 */
 	public void createPartControl(Composite parent) {
 		viewer = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
-		viewer.setContentProvider(new ViewContentProvider());
-		viewer.setLabelProvider(new ViewLabelProvider());
+		PresentationModel pm = new PresentationModel();
+		viewer.setContentProvider(pm);
+		viewer.setLabelProvider(pm);
 		viewer.setInput(getConnectivityManager().getAccounts());
 
 		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
@@ -173,25 +110,49 @@ public class View extends ViewPart {
 		viewer.getControl().setFocus();
 	}
 
-	public boolean addContainer(IContainer container, XMPPID targetID,
-			IConnectContext connectContext) {
+	public Account addContainer(IContainer container, ID targetID) {
 		Account account = getConnectivityManager().createAccount(this,
-				container, targetID, connectContext);
-		if (account == null)
-			return false;
-
+				container, targetID);
 		viewer.add(viewer.getInput(), account);
-		return true;
+		return account;
 
 	}
 
-	public void removeEntryFromTreeViewer(Account entry) {
-		viewer.remove(entry);
+	public void refreshTreeViewer(Object val, boolean labels) {
+		if (viewer != null) {
+			Control c = viewer.getControl();
+			if (c != null && !c.isDisposed()) {
+				if (val != null) {
+					viewer.refresh(val, labels);
+					ViewerFilter[] filters = viewer.getFilters();
+					if (filters.length != 0) {
+						viewer.refresh(labels);
+					}
+				} else {
+					viewer.refresh(labels);
+				}
+				viewer.expandToLevel(DEFAULT_EXPAND_LEVEL);
+			}
+		}
+	}
+
+	public void removeEntryFromTreeViewer(Object entry) {
+		if (viewer != null)
+			viewer.remove(entry);
+
+	}
+
+	public void addEntryToTreeViewer(IRosterEntry entry) {
+		if (viewer != null)
+			viewer.add(
+					getConnectivityManager().getAccount(
+							(IRoster) entry.getParent()), entry);
 
 	}
 
 	public void addEntryToTreeViewer(Account entry) {
-		viewer.add(viewer.getInput(), entry);
+		if (viewer != null)
+			viewer.add(entry.getParent(), entry);
 
 	}
 

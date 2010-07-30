@@ -22,7 +22,7 @@
    <extension
          point="org.eclipse.ui.views">
       <view
-            name="People"
+            name="Friends"
             class="org.vkim.ui.View"
             id="org.vkim.ui.view">
       </view>

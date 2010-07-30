@@ -5,8 +5,8 @@ Bundle-SymbolicName: org.vkdt.vkim;singleton:=true
 Bundle-Version: 0.0.1.zeroiteration
 Bundle-Activator: org.vkim.Activator
 Bundle-Vendor: VK Developers Team, java branch
-Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime,
+Require-Bundle: org.eclipse.ui;bundle-version="3.6.0",
+ org.eclipse.core.runtime;bundle-version="3.6.0",
  org.eclipse.ecf;bundle-version="3.1.0",
  org.eclipse.ecf.provider.xmpp;bundle-version="3.1.0",
  org.eclipse.ecf.presence;bundle-version="2.0.0"

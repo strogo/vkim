@@ -3,18 +3,17 @@
 
 <product name="VKontakteIM" uid="org.vkdt.vkim" id="org.vkdt.vkim.product" application="org.vkdt.vkim.application" version="0.0.1.zeroiteration" useFeatures="false" includeLaunchers="true">
 
-
    <configIni use="default">
    </configIni>
 
    <launcherArgs>
-      <programArgs>-os ${target.os} -ws ${target.ws} -arch ${target.arch} -nl ${target.nl} -consoleLog</programArgs>
+      <programArgs>-os ${target.os} -ws ${target.ws} -arch ${target.arch} -nl ${target.nl}</programArgs>
+      <programArgsWin>-os win32 -ws win32 -arch x86</programArgsWin>
       <vmArgs>-Dosgi.requiredJavaVersion=1.5 -Xms40m -Xmx512m</vmArgs>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
    </launcherArgs>
 
    <windowImages/>
-
 
    <launcher name="vkim">
       <solaris/>
@@ -22,7 +21,6 @@
          <bmp/>
       </win>
    </launcher>
-
 
    <vm>
    </vm>
@@ -73,8 +71,5 @@
       <plugin id="org.vkdt.vkim"/>
    </plugins>
 
-   <configurations>
-      <plugin id="org.vkdt.vkim" autoStart="true" startLevel="0" />
-   </configurations>
 
 </product>

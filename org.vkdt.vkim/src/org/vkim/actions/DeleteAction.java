@@ -1,4 +1,4 @@
-package org.vkim.ui;
+package org.vkim.actions;
 
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -8,7 +8,7 @@ import org.vkim.controller.Account;
 
 public class DeleteAction extends SelectionProviderAction {
 
-	protected DeleteAction(ISelectionProvider provider) {
+	public DeleteAction(ISelectionProvider provider) {
 		super(provider, "Delete");
 	}
 
@@ -23,7 +23,7 @@ public class DeleteAction extends SelectionProviderAction {
 
 		if (iss.getFirstElement() instanceof Account) {
 			Activator.getDefault().getConnectivityManager()
-					.removeAccount((Account) iss.getFirstElement());
+					.remove((Account) iss.getFirstElement());
 		}
 
 		super.run();

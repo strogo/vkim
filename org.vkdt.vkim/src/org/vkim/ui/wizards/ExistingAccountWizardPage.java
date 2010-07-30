@@ -25,6 +25,8 @@ public class ExistingAccountWizardPage extends WizardPage {
 
 	protected ExistingAccountWizardPage() {
 		super("existingAccount");
+		setTitle("Enter your account credentials");
+		setDescription("Check out source code if you don't trust us ;-)");
 	}
 
 	private void verify() {
