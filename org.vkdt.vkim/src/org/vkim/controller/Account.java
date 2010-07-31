@@ -12,7 +12,7 @@ import org.eclipse.ecf.presence.roster.IRosterListener;
 import org.eclipse.ecf.presence.roster.IRosterManager;
 import org.eclipse.swt.widgets.Display;
 import org.vkim.Activator;
-import org.vkim.actions.AsynchContainerConnectAction;
+import org.vkim.controller.actions.AsynchContainerConnectAction;
 import org.vkim.ui.View;
 
 public class Account {
@@ -20,6 +20,8 @@ public class Account {
 	private View view;
 
 	private ID targetID;
+
+	private IConnectContext connectContext;
 
 	protected IContainer container;
 
@@ -132,9 +134,28 @@ public class Account {
 		return view;
 	}
 
-	public void connect(IConnectContext connectContext) {
+	public void connect() {
 		new AsynchContainerConnectAction(container, targetID, connectContext,
-				null /* exception handler */, null).run();
+				null, new Runnable() {
+
+					@Override
+					public void run() {
+						getConnectivityManager().notifyAccountUpdate(
+								Account.this);
+
+					}
+				}).run();
+
+	}
+
+	public void connect(IConnectContext connectContext) {
+		setConnectContext(connectContext);
+		connect();
+	}
+
+	public void disconnect() {
+		if (container != null)
+			container.disconnect();
 
 	}
 
@@ -145,6 +166,10 @@ public class Account {
 
 	public Object getParent() {
 		return getConnectivityManager();
+	}
+
+	private void setConnectContext(IConnectContext connectContext) {
+		this.connectContext = connectContext;
 	}
 
 }

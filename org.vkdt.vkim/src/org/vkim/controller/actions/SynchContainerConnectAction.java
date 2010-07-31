@@ -1,4 +1,4 @@
-package org.vkim.actions;
+package org.vkim.controller.actions;
 
 import org.eclipse.ecf.core.ContainerConnectException;
 import org.eclipse.ecf.core.IContainer;

@@ -1,4 +1,4 @@
-package org.vkim.actions;
+package org.vkim.controller.actions;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -15,6 +15,7 @@ import org.eclipse.ecf.core.util.IExceptionHandler;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.osgi.util.NLS;
 import org.vkim.Activator;
+import org.vkim.Messages;
 
 public class AsynchContainerConnectAction extends SynchContainerConnectAction {
 
@@ -102,12 +103,13 @@ public class AsynchContainerConnectAction extends SynchContainerConnectAction {
 	class AsynchActionJob extends Job {
 
 		public AsynchActionJob() {
-			super("Container connect");
+			super(Messages.AsynchContainerConnectAction_JOB_NAME);
 			setRule(new ContainerMutex(getContainer()));
 		}
 
 		public IStatus run(IProgressMonitor monitor) {
-			monitor.beginTask(NLS.bind("Connecting to {0}",
+			monitor.beginTask(NLS.bind(
+					Messages.AsynchContainerConnectAction_TASK_NAME,
 					(targetID == null) ? "" : targetID.getName()), 100); //$NON-NLS-1$
 			monitor.worked(30);
 			try {

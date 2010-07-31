@@ -14,6 +14,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.vkim.Messages;
 
 public class ExistingAccountWizardPage extends WizardPage {
 
@@ -21,22 +22,22 @@ public class ExistingAccountWizardPage extends WizardPage {
 
 	Text passwordText;
 
-	static Pattern loginPattern = Pattern.compile("[a-zA-Z0-9]+");
+	static Pattern loginPattern = Pattern.compile("\\d+"); //$NON-NLS-1$
 
 	protected ExistingAccountWizardPage() {
-		super("existingAccount");
-		setTitle("Enter your account credentials");
-		setDescription("Check out source code if you don't trust us ;-)");
+		super("existingAccount"); //$NON-NLS-1$
+		setTitle(Messages.ExistingAccountWizardPage_TITLE);
+		setDescription(Messages.ExistingAccountWizardPage_DESCRIPTION);
 	}
 
 	private void verify() {
 		final String text = loginText.getText();
 		if (text.equals("")) { //$NON-NLS-1$
-			updateStatus("A valid vkontakte id must be specified.");
+			updateStatus(Messages.ExistingAccountWizardPage_STATUS);
 		} else {
 			final Matcher matcher = loginPattern.matcher(text);
 			if (!matcher.matches()) {
-				updateStatus("The vkontakte id is malformed.");
+				updateStatus(Messages.ExistingAccountWizardPage_STATUS_INCOMPLETE);
 			} else {
 				updateStatus(null);
 			}
@@ -54,7 +55,7 @@ public class ExistingAccountWizardPage extends WizardPage {
 				false);
 
 		Label label = new Label(parent, SWT.LEFT);
-		label.setText("Id:");
+		label.setText(Messages.ExistingAccountWizardPage_LABEL_ID);
 
 		loginText = new Text(parent, SWT.SINGLE | SWT.BORDER);
 		loginText.setLayoutData(fillData);
@@ -74,11 +75,11 @@ public class ExistingAccountWizardPage extends WizardPage {
 		});
 
 		label = new Label(parent, SWT.LEFT);
-		label.setText("Password:");
+		label.setText(Messages.ExistingAccountWizardPage_PASSWORD);
 		passwordText = new Text(parent, SWT.SINGLE | SWT.PASSWORD | SWT.BORDER);
 		passwordText.setLayoutData(fillData);
 
-		if (loginText.getText().equals("")) {
+		if (loginText.getText().equals("")) { //$NON-NLS-1$
 			updateStatus(null);
 			setPageComplete(false);
 		} else if (isPageComplete())
@@ -98,6 +99,6 @@ public class ExistingAccountWizardPage extends WizardPage {
 	}
 
 	String getConnectID() {
-		return loginText.getText() + "@vk.com";
+		return "id" + loginText.getText() + "@vk.com"; //$NON-NLS-1$
 	}
 }

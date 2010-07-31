@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.runtime.IAdapterFactory;
 import org.eclipse.ecf.core.IContainer;
 import org.eclipse.ecf.core.identity.ID;
 import org.eclipse.ecf.presence.IPresenceContainerAdapter;
@@ -14,9 +15,9 @@ import org.eclipse.ecf.presence.roster.IRoster;
 import org.eclipse.ecf.presence.roster.IRosterItem;
 import org.vkim.ui.View;
 
-public class ConnectivityManager {
+public class ConnectivityManager implements IAdapterFactory {
 
-	protected Map<IRosterItem, Account> accounts = new HashMap<IRosterItem, Account>();
+	protected static Map<IRosterItem, Account> accounts = new HashMap<IRosterItem, Account>();
 
 	private List<IAccountListener> accountUpdateListeners = new ArrayList<IAccountListener>();
 
@@ -72,6 +73,7 @@ public class ConnectivityManager {
 			result = true;
 		}
 		fireAccountRemove(account);
+		account.disconnect();
 		account.dispose();
 
 		return result;
@@ -130,4 +132,21 @@ public class ConnectivityManager {
 
 	}
 
+	public void notifyAccountUpdate(Account changedItem) {
+		fireAccountUpdate(changedItem);
+	}
+
+	@Override
+	public Object getAdapter(Object adaptableObject,
+			@SuppressWarnings("rawtypes") Class adapterType) {
+		if (adapterType == Account.class)
+			return getAccount((IRoster) adaptableObject);
+		return null;
+	}
+
+	@SuppressWarnings("rawtypes")
+	@Override
+	public Class[] getAdapterList() {
+		return new Class[] { Account.class };
+	}
 }

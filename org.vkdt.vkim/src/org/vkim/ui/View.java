@@ -23,14 +23,15 @@ import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.part.ViewPart;
-import org.vkim.actions.DeleteAction;
 import org.vkim.controller.Account;
 import org.vkim.controller.ConnectivityManager;
 import org.vkim.controller.PresentationModel;
+import org.vkim.controller.actions.ConnectAction;
+import org.vkim.controller.actions.DeleteAction;
 
 public class View extends ViewPart {
 
-	public static final String ID = "org.vkim.ui.view";
+	public static final String ID = "org.vkim.ui.view"; //$NON-NLS-1$
 
 	private TreeViewer viewer;
 
@@ -39,6 +40,10 @@ public class View extends ViewPart {
 	IAction newAction;
 
 	IAction deleteAction;
+
+	IAction connectAction;
+
+	IAction disconnectAction;
 
 	private void hookContextMenu() {
 		MenuManager menuMgr = new MenuManager();
@@ -68,6 +73,8 @@ public class View extends ViewPart {
 		deleteAction.setDisabledImageDescriptor(sharedImages
 				.getImageDescriptor(ISharedImages.IMG_TOOL_DELETE_DISABLED));
 
+		connectAction = new ConnectAction((ISelectionProvider) viewer);
+		connectAction.setEnabled(false);
 	}
 
 	private void fillContextMenu(IMenuManager manager) {
@@ -75,6 +82,7 @@ public class View extends ViewPart {
 		manager.add(new Separator());
 		manager.add(deleteAction);
 		manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
+		manager.add(connectAction);
 
 	}
 
@@ -87,7 +95,7 @@ public class View extends ViewPart {
 		PresentationModel pm = new PresentationModel();
 		viewer.setContentProvider(pm);
 		viewer.setLabelProvider(pm);
-		viewer.setInput(getConnectivityManager().getAccounts());
+		viewer.setInput(getConnectivityManager());
 
 		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
@@ -144,9 +152,8 @@ public class View extends ViewPart {
 
 	public void addEntryToTreeViewer(IRosterEntry entry) {
 		if (viewer != null)
-			viewer.add(
-					getConnectivityManager().getAccount(
-							(IRoster) entry.getParent()), entry);
+			viewer.add(((IRoster) entry.getParent()).getAdapter(Account.class),
+					entry);
 
 	}
 

@@ -10,12 +10,9 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
-import org.vkim.Activator;
 
 public class PresentationModel extends LabelProvider implements
 		ITreeContentProvider, ILabelProvider {
-
-	private ConnectivityManager cm;
 
 	public void inputChanged(Viewer v, Object oldInput, Object newInput) {
 	}
@@ -25,8 +22,7 @@ public class PresentationModel extends LabelProvider implements
 
 	public Object[] getElements(Object parent) {
 		if (parent instanceof ConnectivityManager) {
-			setConnectivityManager((ConnectivityManager) parent);
-			return getConnectivityManager().getAccounts().toArray();
+			return ((ConnectivityManager) parent).getAccounts().toArray();
 		}
 
 		if (parent instanceof Object[]) {
@@ -51,8 +47,8 @@ public class PresentationModel extends LabelProvider implements
 		}
 
 		if (element instanceof IRosterEntry) {
-			return getConnectivityManager().getAccount(
-					(IRoster) ((IRosterEntry) element).getParent());
+			return ((IRoster) ((IRosterEntry) element).getParent())
+					.getAdapter(Account.class);
 		}
 
 		return null;
@@ -70,11 +66,11 @@ public class PresentationModel extends LabelProvider implements
 
 	public String getName(IRoster roster) {
 		if (roster.getUser() != null)
-			return roster.getUser().getName();
-		if (getConnectivityManager().getAccount(roster) != null)
-			return ((XMPPID) getConnectivityManager().getAccount(roster)
+			return roster.getName();
+		if (roster.getAdapter(Account.class) != null)
+			return ((XMPPID) ((Account) roster.getAdapter(Account.class))
 					.getTargetID()).getUsername();
-		return "<ID unavailable>";
+		return "<ID unavailable>"; //$NON-NLS-1$
 	}
 
 	public String getName(IRosterEntry entry) {
@@ -99,17 +95,6 @@ public class PresentationModel extends LabelProvider implements
 	public Image getImage(Object obj) {
 		return PlatformUI.getWorkbench().getSharedImages()
 				.getImage(ISharedImages.IMG_OBJ_ELEMENT);
-	}
-
-	public void setConnectivityManager(ConnectivityManager cm) {
-		this.cm = cm;
-	}
-
-	public ConnectivityManager getConnectivityManager() {
-		if (cm == null)
-			cm = Activator.getDefault().getConnectivityManager();
-
-		return cm;
 	}
 
 }

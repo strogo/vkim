@@ -1,20 +1,22 @@
-package org.vkim.actions;
+package org.vkim.controller.actions;
 
+import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.actions.SelectionProviderAction;
-import org.vkim.Activator;
 import org.vkim.controller.Account;
 
-public class DeleteAction extends SelectionProviderAction {
+public class ConnectAction extends SelectionProviderAction implements IAction {
 
-	public DeleteAction(ISelectionProvider provider) {
-		super(provider, "Delete");
+	public ConnectAction(ISelectionProvider provider) {
+		super(provider, "Connect");
 	}
 
 	@Override
 	public void selectionChanged(IStructuredSelection selection) {
-		setEnabled(getSelection() != null && !getSelection().isEmpty());
+		boolean enabled = getSelection() != null && !getSelection().isEmpty();
+		enabled &= (selection.getFirstElement() instanceof Account);
+		setEnabled(enabled);
 	}
 
 	@Override
@@ -22,11 +24,9 @@ public class DeleteAction extends SelectionProviderAction {
 		IStructuredSelection iss = getStructuredSelection();
 
 		if (iss.getFirstElement() instanceof Account) {
-			Activator.getDefault().getConnectivityManager()
-					.remove((Account) iss.getFirstElement());
+			((Account) iss.getFirstElement()).connect();
 		}
 
 		super.run();
 	}
-
 }
