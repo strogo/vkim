@@ -6,6 +6,7 @@ import org.eclipse.ui.actions.SelectionProviderAction;
 import org.vkim.Activator;
 import org.vkim.Messages;
 import org.vkim.controller.Account;
+import org.vkim.ui.ApplicationWorkbenchAdvisor;
 
 public class DeleteAction extends SelectionProviderAction {
 
@@ -20,6 +21,9 @@ public class DeleteAction extends SelectionProviderAction {
 
 	@Override
 	public void run() {
+		ApplicationWorkbenchAdvisor.getApplicationStatusHandler()
+				.setStatusLineErrorMessage("");
+
 		IStructuredSelection iss = getStructuredSelection();
 
 		if (iss.getFirstElement() instanceof Account) {

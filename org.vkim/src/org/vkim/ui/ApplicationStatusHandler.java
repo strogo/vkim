@@ -5,6 +5,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.ecf.core.util.IExceptionHandler;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.dialogs.ErrorDialog;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchPartSite;
@@ -35,7 +36,7 @@ public class ApplicationStatusHandler extends AbstractStatusHandler implements
 	@Override
 	public void handle(final StatusAdapter statusAdapter, int style) {
 		if (statusLine != null) {
-			statusLine.setErrorMessage(statusAdapter.getStatus().getMessage());
+			setStatusLineErrorMessage(statusAdapter.getStatus().getMessage());
 		} else {
 			ErrorDialog.openError(window.getShell(), "Error", statusAdapter
 					.getStatus().getMessage(), statusAdapter.getStatus());
@@ -45,14 +46,26 @@ public class ApplicationStatusHandler extends AbstractStatusHandler implements
 
 	@Override
 	public IStatus handleException(Throwable exception) {
-		IStatus status = new Status(IStatus.ERROR, Activator.PLUGIN_ID,
+		final IStatus status = new Status(IStatus.ERROR, Activator.PLUGIN_ID,
 				IStatus.ERROR, exception.getLocalizedMessage(), exception);
 		if (statusLine != null) {
-			statusLine.setErrorMessage(status.getMessage());
+			setStatusLineErrorMessage(status.getMessage());
 		} else {
 			ErrorDialog.openError(window.getShell(), "Error",
 					status.getMessage(), status);
 		}
 		return status;
+	}
+
+	public void setStatusLineErrorMessage(final String message) {
+		Display.getDefault().asyncExec(new Runnable() {
+
+			@Override
+			public void run() {
+				statusLine.setErrorMessage(message);
+
+			}
+		});
+
 	}
 }

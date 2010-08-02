@@ -16,6 +16,14 @@ public class ApplicationProgressProvider extends ProgressProvider {
 
 	@Override
 	public IProgressMonitor createMonitor(Job job) {
+		Display.getDefault().asyncExec(new Runnable() {
+
+			@Override
+			public void run() {
+				statusLine.setErrorMessage("");
+
+			}
+		});
 		return new DelegatingProgressMonitor(statusLine.getProgressMonitor());
 	}
 
@@ -29,7 +37,7 @@ public class ApplicationProgressProvider extends ProgressProvider {
 
 		@Override
 		public void beginTask(final String name, final int totalWork) {
-			Display.getDefault().syncExec(new Runnable() {
+			Display.getDefault().asyncExec(new Runnable() {
 
 				@Override
 				public void run() {
@@ -42,7 +50,7 @@ public class ApplicationProgressProvider extends ProgressProvider {
 
 		@Override
 		public void done() {
-			Display.getDefault().syncExec(new Runnable() {
+			Display.getDefault().asyncExec(new Runnable() {
 
 				@Override
 				public void run() {
@@ -55,7 +63,7 @@ public class ApplicationProgressProvider extends ProgressProvider {
 
 		@Override
 		public void internalWorked(final double work) {
-			Display.getDefault().syncExec(new Runnable() {
+			Display.getDefault().asyncExec(new Runnable() {
 
 				@Override
 				public void run() {
@@ -73,7 +81,7 @@ public class ApplicationProgressProvider extends ProgressProvider {
 
 		@Override
 		public void setCanceled(final boolean value) {
-			Display.getDefault().syncExec(new Runnable() {
+			Display.getDefault().asyncExec(new Runnable() {
 
 				@Override
 				public void run() {
@@ -86,7 +94,7 @@ public class ApplicationProgressProvider extends ProgressProvider {
 
 		@Override
 		public void setTaskName(final String name) {
-			Display.getDefault().syncExec(new Runnable() {
+			Display.getDefault().asyncExec(new Runnable() {
 
 				@Override
 				public void run() {
@@ -99,7 +107,7 @@ public class ApplicationProgressProvider extends ProgressProvider {
 
 		@Override
 		public void subTask(final String name) {
-			Display.getDefault().syncExec(new Runnable() {
+			Display.getDefault().asyncExec(new Runnable() {
 
 				@Override
 				public void run() {
@@ -112,7 +120,7 @@ public class ApplicationProgressProvider extends ProgressProvider {
 
 		@Override
 		public void worked(final int work) {
-			Display.getDefault().syncExec(new Runnable() {
+			Display.getDefault().asyncExec(new Runnable() {
 
 				@Override
 				public void run() {

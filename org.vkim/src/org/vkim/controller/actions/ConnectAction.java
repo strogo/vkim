@@ -5,6 +5,7 @@ import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.actions.SelectionProviderAction;
 import org.vkim.controller.Account;
+import org.vkim.ui.ApplicationWorkbenchAdvisor;
 
 public class ConnectAction extends SelectionProviderAction implements IAction {
 
@@ -21,6 +22,9 @@ public class ConnectAction extends SelectionProviderAction implements IAction {
 
 	@Override
 	public void run() {
+		ApplicationWorkbenchAdvisor.getApplicationStatusHandler()
+				.setStatusLineErrorMessage("");
+
 		IStructuredSelection iss = getStructuredSelection();
 
 		if (iss.getFirstElement() instanceof Account) {
