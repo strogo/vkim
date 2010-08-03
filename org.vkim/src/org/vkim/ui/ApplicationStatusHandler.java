@@ -35,12 +35,7 @@ public class ApplicationStatusHandler extends AbstractStatusHandler implements
 
 	@Override
 	public void handle(final StatusAdapter statusAdapter, int style) {
-		if (statusLine != null) {
-			setStatusLineErrorMessage(statusAdapter.getStatus().getMessage());
-		} else {
-			ErrorDialog.openError(window.getShell(), "Error", statusAdapter
-					.getStatus().getMessage(), statusAdapter.getStatus());
-		}
+		statusAdapter.getStatus().getException().printStackTrace();
 
 	}
 
@@ -58,14 +53,26 @@ public class ApplicationStatusHandler extends AbstractStatusHandler implements
 	}
 
 	public void setStatusLineErrorMessage(final String message) {
-		Display.getDefault().asyncExec(new Runnable() {
+		if (statusLine != null)
+			Display.getDefault().asyncExec(new Runnable() {
 
-			@Override
-			public void run() {
-				statusLine.setErrorMessage(message);
+				@Override
+				public void run() {
+					statusLine.setErrorMessage(message);
 
-			}
-		});
+				}
+			});
 
+	}
+
+	public static void resetErrorStatus() {
+		if (ApplicationWorkbenchAdvisor.getApplicationStatusHandler() != null)
+			ApplicationWorkbenchAdvisor.getApplicationStatusHandler()
+					.setStatusLineErrorMessage("");
+
+	}
+
+	public void dispose() {
+		statusLine = null;
 	}
 }

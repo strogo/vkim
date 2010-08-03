@@ -169,6 +169,10 @@ public class Account {
 		return getConnectivityManager();
 	}
 
+	public boolean remove() {
+		return getConnectivityManager().remove(this);
+	}
+
 	private void setConnectContext(IConnectContext connectContext) {
 		this.connectContext = connectContext;
 	}

@@ -9,14 +9,20 @@ import org.eclipse.swt.widgets.Display;
 public class ApplicationProgressProvider extends ProgressProvider {
 
 	private IStatusLineManager statusLine;
+	private Display display = Display.getDefault();
 
 	ApplicationProgressProvider(IStatusLineManager statusLine) {
 		this.statusLine = statusLine;
 	}
 
+	public void dispose() {
+		statusLine = null;
+		display = null;
+	}
+
 	@Override
 	public IProgressMonitor createMonitor(Job job) {
-		Display.getDefault().asyncExec(new Runnable() {
+		display.asyncExec(new Runnable() {
 
 			@Override
 			public void run() {
@@ -37,7 +43,7 @@ public class ApplicationProgressProvider extends ProgressProvider {
 
 		@Override
 		public void beginTask(final String name, final int totalWork) {
-			Display.getDefault().asyncExec(new Runnable() {
+			display.asyncExec(new Runnable() {
 
 				@Override
 				public void run() {
@@ -50,7 +56,7 @@ public class ApplicationProgressProvider extends ProgressProvider {
 
 		@Override
 		public void done() {
-			Display.getDefault().asyncExec(new Runnable() {
+			display.asyncExec(new Runnable() {
 
 				@Override
 				public void run() {
@@ -63,7 +69,7 @@ public class ApplicationProgressProvider extends ProgressProvider {
 
 		@Override
 		public void internalWorked(final double work) {
-			Display.getDefault().asyncExec(new Runnable() {
+			display.asyncExec(new Runnable() {
 
 				@Override
 				public void run() {
@@ -81,7 +87,7 @@ public class ApplicationProgressProvider extends ProgressProvider {
 
 		@Override
 		public void setCanceled(final boolean value) {
-			Display.getDefault().asyncExec(new Runnable() {
+			display.asyncExec(new Runnable() {
 
 				@Override
 				public void run() {
@@ -94,7 +100,7 @@ public class ApplicationProgressProvider extends ProgressProvider {
 
 		@Override
 		public void setTaskName(final String name) {
-			Display.getDefault().asyncExec(new Runnable() {
+			display.asyncExec(new Runnable() {
 
 				@Override
 				public void run() {
@@ -107,7 +113,7 @@ public class ApplicationProgressProvider extends ProgressProvider {
 
 		@Override
 		public void subTask(final String name) {
-			Display.getDefault().asyncExec(new Runnable() {
+			display.asyncExec(new Runnable() {
 
 				@Override
 				public void run() {
@@ -120,7 +126,7 @@ public class ApplicationProgressProvider extends ProgressProvider {
 
 		@Override
 		public void worked(final int work) {
-			Display.getDefault().asyncExec(new Runnable() {
+			display.asyncExec(new Runnable() {
 
 				@Override
 				public void run() {

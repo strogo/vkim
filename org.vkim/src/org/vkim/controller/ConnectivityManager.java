@@ -72,8 +72,8 @@ public class ConnectivityManager implements IAdapterFactory {
 			accounts.remove(account.getRoster());
 			result = true;
 		}
-		fireAccountRemove(account);
 		account.disconnect();
+		fireAccountRemove(account);
 		account.dispose();
 
 		return result;

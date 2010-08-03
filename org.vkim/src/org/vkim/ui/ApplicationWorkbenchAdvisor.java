@@ -30,4 +30,5 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 	public static ApplicationStatusHandler getApplicationStatusHandler() {
 		return statusHandler;
 	}
+
 }
