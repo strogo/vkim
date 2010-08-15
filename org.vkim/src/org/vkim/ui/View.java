@@ -1,7 +1,5 @@
 package org.vkim.ui;
 
-import org.eclipse.ecf.core.IContainer;
-import org.eclipse.ecf.core.identity.ID;
 import org.eclipse.ecf.presence.roster.IRoster;
 import org.eclipse.ecf.presence.roster.IRosterEntry;
 import org.eclipse.jface.action.IAction;
@@ -9,8 +7,11 @@ import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.ViewerFilter;
@@ -28,6 +29,7 @@ import org.vkim.controller.ConnectivityManager;
 import org.vkim.controller.PresentationModel;
 import org.vkim.controller.actions.ConnectAction;
 import org.vkim.controller.actions.DeleteAction;
+import org.vkim.controller.actions.OpenAction;
 
 public class View extends ViewPart {
 
@@ -43,7 +45,7 @@ public class View extends ViewPart {
 
 	IAction connectAction;
 
-	IAction disconnectAction;
+	IAction openAction;
 
 	private void hookContextMenu() {
 		MenuManager menuMgr = new MenuManager();
@@ -66,6 +68,7 @@ public class View extends ViewPart {
 
 		// TODO extract to my action factory
 		deleteAction = new DeleteAction((ISelectionProvider) viewer);
+		deleteAction.setAccelerator(SWT.DEL); // XXX not working
 		deleteAction.setEnabled(false);
 		ISharedImages sharedImages = window.getWorkbench().getSharedImages();
 		deleteAction.setImageDescriptor(sharedImages
@@ -75,6 +78,9 @@ public class View extends ViewPart {
 
 		connectAction = new ConnectAction((ISelectionProvider) viewer);
 		connectAction.setEnabled(false);
+
+		openAction = new OpenAction((ISelectionProvider) viewer, getSite()
+				.getPage());
 	}
 
 	private void fillContextMenu(IMenuManager manager) {
@@ -95,19 +101,42 @@ public class View extends ViewPart {
 		PresentationModel pm = new PresentationModel();
 		viewer.setContentProvider(pm);
 		viewer.setLabelProvider(pm);
-		viewer.setInput(getConnectivityManager());
+		viewer.setInput(getCM());
+
+		initListeners();
+		makeActions();
+		hookContextMenu();
+		viewer.expandToLevel(DEFAULT_EXPAND_LEVEL);
+	}
+
+	private void initListeners() {
+		viewer.addDoubleClickListener(new IDoubleClickListener() {
+
+			@Override
+			public void doubleClick(DoubleClickEvent event) {
+
+				IStructuredSelection selection = (IStructuredSelection) event
+						.getSelection();
+				Object selected = selection.getFirstElement();
+
+				if (viewer.isExpandable(selected))
+					viewer.setExpandedState(selected,
+							!viewer.getExpandedState(selected));
+
+				if (selection.size() == 1 && openAction.isEnabled())
+					openAction.run();
+			}
+
+		});
 
 		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
 				getSite().setSelectionProvider(viewer);
 			}
 		});
-
-		makeActions();
-		hookContextMenu();
 	}
 
-	private ConnectivityManager getConnectivityManager() {
+	private ConnectivityManager getCM() {
 		return org.vkim.Activator.getDefault().getConnectivityManager();
 	}
 
@@ -116,14 +145,6 @@ public class View extends ViewPart {
 	 */
 	public void setFocus() {
 		viewer.getControl().setFocus();
-	}
-
-	public Account addContainer(IContainer container, ID targetID) {
-		Account account = getConnectivityManager().createAccount(this,
-				container, targetID);
-		viewer.add(viewer.getInput(), account);
-		return account;
-
 	}
 
 	public void refreshTreeViewer(Object val, boolean labels) {

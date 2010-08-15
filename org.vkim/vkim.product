@@ -8,6 +8,7 @@
 
    <launcherArgs>
       <programArgs>-os ${target.os} -ws ${target.ws} -arch ${target.arch} -nl ${target.nl} -consoleLog</programArgs>
+      <programArgsLin>-os linux -ws gtk -arch x86</programArgsLin>
       <programArgsWin>-os win32 -ws win32 -arch x86</programArgsWin>
       <vmArgs>-Dosgi.requiredJavaVersion=1.5 -Xms40m -Xmx512m</vmArgs>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
@@ -66,9 +67,11 @@
       <plugin id="org.eclipse.swt"/>
       <plugin id="org.eclipse.swt.win32.win32.x86" fragment="true"/>
       <plugin id="org.eclipse.ui"/>
+      <plugin id="org.eclipse.ui.forms"/>
       <plugin id="org.eclipse.ui.workbench"/>
       <plugin id="org.jivesoftware.smack"/>
       <plugin id="org.vkim"/>
+      <plugin id="org.vkim.nl" fragment="true"/>
    </plugins>
 
 

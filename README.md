@@ -1,26 +1,28 @@
 ﻿VKontakte IM
 ============
 
-Добро пожаловать в репозиторий проекта XMPP-клиента для социальной сети ВКонтакте!
+Добро пожаловать в репозиторий XMPP-клиента для социальной сети ВКонтакте!
 
 
 Скачать
 ---
 
-Первые билды доступны по ссылке: <http://github.com/kirillzotkin/vkim/downloads>. Они отсортированы по убыванию порядка появления.
+Первые билды доступны в разделе [Downloads][dl]. Последний - самый верхний.
+Оставляйте Предложения и замечания [здесь][feedback].
 
 
 Участие
 ---
 
-Это open-source проект, он участвует в [конкурсе][contest].
-Приз (деньги), в случае выигрыша, будут поделены между участниками пропорционально вкладу каждого.
-Приглашаем вас поучаствовать в разработке! Как это сделать, читайте в [wiki проекта][wiki].
+Проект участвует в [конкурсе][contest].
+Приз, в случае выигрыша, будет поделен между участниками пропорционально вкладу. Делить попросим организаторов.
+Вы можете [поучаствовать][part] в проекте.
 
 
-С уважением, [Eclipse Developers Team][edt].
+С уважением, [Developers Team][dt].
 
-
+[feedback]: http://vkontakte.ru/note3318920_9952575
+[dl]: http://github.com/kirillzotkin/vkim/downloads
 [contest]: http://vkontakte.ru/pages.php?id=27987544
-[wiki]: http://wiki.github.com/kirillzotkin/vkim/participation
-[edt]: http://vkontakte.ru/club19159134
+[part]: http://wiki.github.com/kirillzotkin/vkim/participation
+[dt]: http://vkontakte.ru/club19159134

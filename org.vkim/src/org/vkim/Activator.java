@@ -13,7 +13,7 @@ import org.vkim.controller.ConnectivityManager;
 public class Activator extends AbstractUIPlugin {
 
 	// The plug-in ID
-	public static final String PLUGIN_ID = "org.vkim.ui"; //$NON-NLS-1$
+	public static final String PLUGIN_ID = "org.vkim"; //$NON-NLS-1$
 
 	// The shared instance
 	private static Activator plugin;

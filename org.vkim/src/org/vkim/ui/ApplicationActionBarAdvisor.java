@@ -14,7 +14,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 
 	@Override
 	protected void fillStatusLine(IStatusLineManager statusLine) {
-		statusLine.setCancelEnabled(true); // ??? not working
+		statusLine.setCancelEnabled(true); // XXX not working
 		Job.getJobManager().setProgressProvider(
 				new ApplicationProgressProvider(statusLine));
 		super.fillStatusLine(statusLine);

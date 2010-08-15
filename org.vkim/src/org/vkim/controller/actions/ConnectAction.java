@@ -4,8 +4,8 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.actions.SelectionProviderAction;
+import org.vkim.Activator;
 import org.vkim.controller.Account;
-import org.vkim.ui.ApplicationStatusHandler;
 
 public class ConnectAction extends SelectionProviderAction implements IAction {
 
@@ -22,12 +22,11 @@ public class ConnectAction extends SelectionProviderAction implements IAction {
 
 	@Override
 	public void run() {
-		ApplicationStatusHandler.resetErrorStatus();
-
 		IStructuredSelection iss = getStructuredSelection();
 
 		if (iss != null && iss.getFirstElement() instanceof Account) {
-			((Account) iss.getFirstElement()).connect();
+			Activator.getDefault().getConnectivityManager()
+					.connect(((Account) iss.getFirstElement()));
 		}
 
 		super.run();

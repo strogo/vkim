@@ -75,7 +75,7 @@
       <wizard
             class="org.vkim.ui.wizards.ExistingAccountWizard"
             id="org.vkim.ui.existingAccount"
-            name="%existingAccountWizard.name">
+            name="%existingVKAccountWizard.name">
       </wizard>
    </extension>
    <extension
@@ -100,6 +100,16 @@
                type="org.vkim.controller.Account">
          </adapter>
       </factory>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="org.vkim.ui.editors.Conversation"
+            contributorClass="org.eclipse.ui.part.EditorActionBarContributor"
+            default="false"
+            id="org.vkim.ui.editors.Conversation"
+            name="Conversation">
+      </editor>
    </extension>
    
 </plugin>

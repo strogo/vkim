@@ -18,16 +18,12 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 		return PERSPECTIVE_ID;
 	}
 
-	private static ApplicationStatusHandler statusHandler;
+	private ApplicationStatusHandler statusHandler;
 
 	@Override
 	public synchronized AbstractStatusHandler getWorkbenchErrorHandler() {
 		if (statusHandler == null)
 			statusHandler = new ApplicationStatusHandler();
-		return statusHandler;
-	}
-
-	public static ApplicationStatusHandler getApplicationStatusHandler() {
 		return statusHandler;
 	}
 

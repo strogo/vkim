@@ -8,11 +8,22 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IAdapterFactory;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.ecf.core.IContainer;
 import org.eclipse.ecf.core.identity.ID;
+import org.eclipse.ecf.core.security.IConnectContext;
+import org.eclipse.ecf.core.util.IExceptionHandler;
 import org.eclipse.ecf.presence.IPresenceContainerAdapter;
 import org.eclipse.ecf.presence.roster.IRoster;
 import org.eclipse.ecf.presence.roster.IRosterItem;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.progress.UIJob;
+import org.vkim.Activator;
+import org.vkim.controller.actions.AsynchContainerConnectAction;
 import org.vkim.ui.View;
 
 public class ConnectivityManager implements IAdapterFactory {
@@ -35,6 +46,20 @@ public class ConnectivityManager implements IAdapterFactory {
 		return false;
 	}
 
+	protected Account findAccountForContainer(IContainer container) {
+		if (container == null)
+			return null;
+		synchronized (accounts) {
+			for (Iterator<Account> i = accounts.values().iterator(); i
+					.hasNext();) {
+				Account account = i.next();
+				if (account.getContainer().getID().equals(container.getID()))
+					return account;
+			}
+		}
+		return null;
+	}
+
 	protected boolean addAccount(Account account) {
 		if (account == null || account.getRoster() == null
 				|| accounts.containsValue(account))
@@ -52,7 +77,7 @@ public class ConnectivityManager implements IAdapterFactory {
 		if (containerAdapter == null)
 			return null;
 		if (containerPresent(container))
-			return null;
+			return findAccountForContainer(container);
 		Account account = new Account(view, container, containerAdapter);
 		account.setTargetID(targetID);
 		if (!addAccount(account))
@@ -155,5 +180,80 @@ public class ConnectivityManager implements IAdapterFactory {
 	@Override
 	public Class[] getAdapterList() {
 		return new Class[] { Account.class };
+	}
+
+	public void connect(final IContainer container, ID targetID,
+			IConnectContext connectContext) {
+		new AsynchContainerConnectAction(container, targetID, connectContext,
+				new IExceptionHandler() {
+
+					@Override
+					public IStatus handleException(final Throwable exception) {
+						Display display = Display.getDefault();
+						display.asyncExec(new Runnable() {
+
+							@Override
+							public void run() {
+								getView()
+										.getViewSite()
+										.getActionBars()
+										.getStatusLineManager()
+										.setErrorMessage(
+												exception.getLocalizedMessage());
+							}
+
+						});
+
+						new UIJob(display, "Clear Error Status Job") { //$NON-NLS-1$
+							public IStatus runInUIThread(
+									IProgressMonitor monitor) {
+								getView().getViewSite().getActionBars()
+										.getStatusLineManager()
+										.setErrorMessage("");
+								return Status.OK_STATUS;
+							}
+						}.schedule(20000);
+
+						return new Status(IStatus.ERROR, Activator.PLUGIN_ID,
+								IStatus.ERROR, exception.getLocalizedMessage(),
+								exception);
+					}
+				}, new Runnable() {
+
+					@Override
+					public void run() {
+						// update account's label in friends view
+						notifyAccountUpdate(findAccountForContainer(container));
+
+					}
+				}).run();
+	}
+
+	private IViewPart getView() {
+		return PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+				.getActivePage().findView(View.ID);
+
+	}
+
+	private Map<Account, IConnectContext> contexts = new HashMap<Account, IConnectContext>();
+
+	private synchronized void setConnectContext(Account account,
+			IConnectContext connectContext) {
+		contexts.put(account, connectContext);
+
+	}
+
+	private synchronized IConnectContext getConnectContext(Account account) {
+		return contexts.get(account);
+	}
+
+	public void connect(Account account) {
+		connect(account, getConnectContext(account));
+
+	}
+
+	public void connect(Account account, IConnectContext connectContext) {
+		setConnectContext(account, connectContext);
+		connect(account.getContainer(), account.getTargetID(), connectContext);
 	}
 }

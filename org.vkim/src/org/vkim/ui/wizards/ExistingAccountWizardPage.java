@@ -18,11 +18,11 @@ import org.vkim.Messages;
 
 public class ExistingAccountWizardPage extends WizardPage {
 
-	Text loginText;
+	Text id;
 
-	Text passwordText;
+	Text password;
 
-	static Pattern loginPattern = Pattern.compile("\\d+"); //$NON-NLS-1$
+	static Pattern idPattern = Pattern.compile("\\d+"); //$NON-NLS-1$
 
 	protected ExistingAccountWizardPage() {
 		super("existingAccount"); //$NON-NLS-1$
@@ -31,11 +31,11 @@ public class ExistingAccountWizardPage extends WizardPage {
 	}
 
 	private void verify() {
-		final String text = loginText.getText();
+		final String text = id.getText();
 		if (text.equals("")) { //$NON-NLS-1$
 			updateStatus(Messages.ExistingAccountWizardPage_STATUS);
 		} else {
-			final Matcher matcher = loginPattern.matcher(text);
+			final Matcher matcher = idPattern.matcher(text);
 			if (!matcher.matches()) {
 				updateStatus(Messages.ExistingAccountWizardPage_STATUS_INCOMPLETE);
 			} else {
@@ -57,14 +57,14 @@ public class ExistingAccountWizardPage extends WizardPage {
 		Label label = new Label(parent, SWT.LEFT);
 		label.setText(Messages.ExistingAccountWizardPage_LABEL_ID);
 
-		loginText = new Text(parent, SWT.SINGLE | SWT.BORDER);
-		loginText.setLayoutData(fillData);
-		loginText.addModifyListener(new ModifyListener() {
+		id = new Text(parent, SWT.SINGLE | SWT.BORDER);
+		id.setLayoutData(fillData);
+		id.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
 				verify();
 			}
 		});
-		loginText.addSelectionListener(new SelectionListener() {
+		id.addSelectionListener(new SelectionListener() {
 			public void widgetDefaultSelected(SelectionEvent e) {
 				verify();
 			}
@@ -76,17 +76,18 @@ public class ExistingAccountWizardPage extends WizardPage {
 
 		label = new Label(parent, SWT.LEFT);
 		label.setText(Messages.ExistingAccountWizardPage_PASSWORD);
-		passwordText = new Text(parent, SWT.SINGLE | SWT.PASSWORD | SWT.BORDER);
-		passwordText.setLayoutData(fillData);
+		password = new Text(parent, SWT.SINGLE | SWT.PASSWORD | SWT.BORDER);
+		password.setLayoutData(fillData);
 
-		if (loginText.getText().equals("")) { //$NON-NLS-1$
+		if (id.getText().equals("")) { //$NON-NLS-1$
 			updateStatus(null);
 			setPageComplete(false);
 		} else if (isPageComplete())
-			passwordText.setFocus();
+			password.setFocus();
 
 		org.eclipse.jface.dialogs.Dialog.applyDialogFont(parent);
 		setControl(parent);
+		id.setFocus();
 	}
 
 	protected void updateStatus(String message) {
@@ -95,10 +96,10 @@ public class ExistingAccountWizardPage extends WizardPage {
 	}
 
 	String getPassword() {
-		return passwordText.getText();
+		return password.getText();
 	}
 
 	String getConnectID() {
-		return "id" + loginText.getText() + "@vk.com"; //$NON-NLS-1$
+		return "id" + id.getText() + "@vk.com"; //$NON-NLS-1$
 	}
 }

@@ -3,7 +3,6 @@ package org.vkim.controller;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.ecf.core.IContainer;
 import org.eclipse.ecf.core.identity.ID;
-import org.eclipse.ecf.core.security.IConnectContext;
 import org.eclipse.ecf.presence.IPresenceContainerAdapter;
 import org.eclipse.ecf.presence.roster.IRoster;
 import org.eclipse.ecf.presence.roster.IRosterEntry;
@@ -12,8 +11,6 @@ import org.eclipse.ecf.presence.roster.IRosterListener;
 import org.eclipse.ecf.presence.roster.IRosterManager;
 import org.eclipse.swt.widgets.Display;
 import org.vkim.Activator;
-import org.vkim.controller.actions.AsynchContainerConnectAction;
-import org.vkim.ui.ApplicationStatusHandler;
 import org.vkim.ui.View;
 
 public class Account {
@@ -21,8 +18,6 @@ public class Account {
 	private View view;
 
 	private ID targetID;
-
-	private IConnectContext connectContext;
 
 	protected IContainer container;
 
@@ -98,7 +93,7 @@ public class Account {
 		Assert.isNotNull(adapter);
 		this.container = container;
 		this.adapter = adapter;
-		getConnectivityManager().addAccountListener(updateAccountListener);
+		getCM().addAccountListener(updateAccountListener);
 		getRosterManager().addRosterListener(updateRosterListener);
 	}
 
@@ -106,9 +101,8 @@ public class Account {
 		return container;
 	}
 
-	private ConnectivityManager getConnectivityManager() {
+	private ConnectivityManager getCM() {
 		return Activator.getDefault().getConnectivityManager();
-
 	}
 
 	public IPresenceContainerAdapter getPresenceContainerAdapter() {
@@ -135,46 +129,22 @@ public class Account {
 		return view;
 	}
 
-	public void connect() {
-		new AsynchContainerConnectAction(container, targetID, connectContext,
-				new ApplicationStatusHandler(), new Runnable() {
-
-					@Override
-					public void run() {
-						// update account's label in view
-						getConnectivityManager().notifyAccountUpdate(
-								Account.this);
-
-					}
-				}).run();
-
-	}
-
-	public void connect(IConnectContext connectContext) {
-		setConnectContext(connectContext);
-		connect();
-	}
-
 	public void disconnect() {
 		if (container != null)
 			container.disconnect();
 	}
 
 	public void dispose() {
-		getConnectivityManager().removeAccountListener(updateAccountListener);
+		getCM().removeAccountListener(updateAccountListener);
 		getRosterManager().removeRosterListener(updateRosterListener);
 	}
 
 	public Object getParent() {
-		return getConnectivityManager();
+		return getCM();
 	}
 
 	public boolean remove() {
-		return getConnectivityManager().remove(this);
-	}
-
-	private void setConnectContext(IConnectContext connectContext) {
-		this.connectContext = connectContext;
+		return getCM().remove(this);
 	}
 
 }
