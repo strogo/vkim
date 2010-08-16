@@ -7,6 +7,7 @@ import org.eclipse.ecf.presence.im.IChatID;
 import org.eclipse.ecf.presence.im.IChatMessage;
 import org.eclipse.ecf.presence.im.IChatMessageSender;
 import org.eclipse.ecf.presence.roster.IRosterEntry;
+import org.eclipse.jface.layout.LayoutConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyledText;
@@ -52,7 +53,10 @@ public class Conversation extends FormEditorPart {
 
 	private void createForm(IManagedForm managedForm) {
 		Composite body = managedForm.getForm().getForm().getBody();
-		body.setLayout(new FillLayout());
+		FillLayout layout = new FillLayout();
+		layout.marginWidth = LayoutConstants.getMargins().x;
+		layout.marginHeight = LayoutConstants.getMargins().y;
+		body.setLayout(layout);
 
 		FormToolkit toolkit = managedForm.getToolkit();
 		managedForm.getForm().setText(getTitle());
