@@ -256,4 +256,5 @@ public class ConnectivityManager implements IAdapterFactory {
 		setConnectContext(account, connectContext);
 		connect(account.getContainer(), account.getTargetID(), connectContext);
 	}
+
 }

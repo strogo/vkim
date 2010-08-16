@@ -1,5 +1,8 @@
 package org.vkim.ui;
 
+import org.eclipse.ecf.core.identity.ID;
+import org.eclipse.ecf.presence.IPresence;
+import org.eclipse.ecf.presence.IPresenceListener;
 import org.eclipse.ecf.presence.roster.IRoster;
 import org.eclipse.ecf.presence.roster.IRosterEntry;
 import org.eclipse.jface.action.IAction;
@@ -7,6 +10,7 @@ import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.viewers.DecorationContext;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -18,12 +22,14 @@ import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.part.ViewPart;
+import org.vkim.Activator;
 import org.vkim.controller.Account;
 import org.vkim.controller.ConnectivityManager;
 import org.vkim.controller.PresentationModel;
@@ -46,6 +52,8 @@ public class View extends ViewPart {
 	IAction connectAction;
 
 	IAction openAction;
+
+	private IPresenceListener presenceListener;
 
 	private void hookContextMenu() {
 		MenuManager menuMgr = new MenuManager();
@@ -98,9 +106,13 @@ public class View extends ViewPart {
 	 */
 	public void createPartControl(Composite parent) {
 		viewer = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
+		presenceListener = new PresenceListener();
 		PresentationModel pm = new PresentationModel();
 		viewer.setContentProvider(pm);
-		viewer.setLabelProvider(pm);
+		viewer.setLabelProvider(new PresenceLabelProvider(
+				new PresenceLabelProvider.PresenceStyledLabelProvider(),
+				Activator.getDefault().getWorkbench().getDecoratorManager()
+						.getLabelDecorator(), DecorationContext.DEFAULT_CONTEXT));
 		viewer.setInput(getCM());
 
 		initListeners();
@@ -136,6 +148,21 @@ public class View extends ViewPart {
 		});
 	}
 
+	private class PresenceListener implements IPresenceListener {
+
+		public void handlePresence(ID fromID, IPresence presence) {
+
+			Display.getDefault().asyncExec(new Runnable() {
+
+				@Override
+				public void run() {
+					getSite().getWorkbenchWindow().getWorkbench()
+							.getDecoratorManager().update(PresenceDecorator.ID);
+				}
+			});
+		}
+	}
+
 	private ConnectivityManager getCM() {
 		return org.vkim.Activator.getDefault().getConnectivityManager();
 	}
@@ -148,7 +175,7 @@ public class View extends ViewPart {
 	}
 
 	public void refreshTreeViewer(Object val, boolean labels) {
-		if (viewer != null) {
+		if (viewer != null && !viewer.getControl().isDisposed()) {
 			Control c = viewer.getControl();
 			if (c != null && !c.isDisposed()) {
 				if (val != null) {
@@ -166,22 +193,26 @@ public class View extends ViewPart {
 	}
 
 	public void removeEntryFromTreeViewer(Object entry) {
-		if (viewer != null)
+		if (viewer != null && !viewer.getControl().isDisposed())
 			viewer.remove(entry);
+		if (entry instanceof Account)
+			((Account) entry).getPresenceContainerAdapter().getRosterManager()
+					.removePresenceListener(presenceListener);
 
 	}
 
 	public void addEntryToTreeViewer(IRosterEntry entry) {
-		if (viewer != null)
+		if (viewer != null && !viewer.getControl().isDisposed())
 			viewer.add(((IRoster) entry.getParent()).getAdapter(Account.class),
 					entry);
 
 	}
 
 	public void addEntryToTreeViewer(Account entry) {
-		if (viewer != null)
+		if (viewer != null && !viewer.getControl().isDisposed())
 			viewer.add(entry.getParent(), entry);
+		entry.getPresenceContainerAdapter().getRosterManager()
+				.addPresenceListener(presenceListener);
 
 	}
-
 }

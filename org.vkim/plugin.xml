@@ -100,6 +100,20 @@
                type="org.vkim.controller.Account">
          </adapter>
       </factory>
+      <factory
+            adaptableType="org.eclipse.ecf.presence.roster.IRosterEntry"
+            class="org.vkim.controller.PresentationModel">
+         <adapter
+               type="org.eclipse.ui.model.IWorkbenchAdapter">
+         </adapter>
+      </factory>
+      <factory
+            adaptableType="org.vkim.controller.Account"
+            class="org.vkim.controller.PresentationModel">
+         <adapter
+               type="org.eclipse.ui.model.IWorkbenchAdapter">
+         </adapter>
+      </factory>
    </extension>
    <extension
          point="org.eclipse.ui.editors">
@@ -110,6 +124,21 @@
             id="org.vkim.ui.editors.Conversation"
             name="Conversation">
       </editor>
+   </extension>
+   <extension
+         point="org.eclipse.ui.decorators">
+      <decorator
+            class="org.vkim.ui.PresenceDecorator"
+            id="org.vkim.ui.presenceDecorator"
+            label="Presence Decorator"
+            lightweight="true"
+            state="true">
+         <enablement>
+            <objectClass
+                  name="org.eclipse.ecf.presence.roster.IRosterEntry">
+            </objectClass>
+         </enablement>
+      </decorator>
    </extension>
    
 </plugin>
